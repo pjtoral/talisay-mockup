@@ -7,1224 +7,749 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
     --primary: #1a4f8a;
     --accent: #f5a623;
     --green: #27ae60;
     --red: #e74c3c;
     --bg: #f0f4f8;
-    --card: #ffffff;
     --text: #1a2332;
     --muted: #6b7c93;
     --border: #dde4ed;
     --light-blue: #e8f0fe;
   }
-
   body {
-    background: #e2e8f0;
-    font-family: 'DM Sans', sans-serif;
-    color: var(--text);
-    min-height: 100vh;
-    padding: 40px 20px;
-  }
-
-  h1.page-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 28px;
-    font-weight: 800;
-    text-align: center;
-    color: var(--primary);
-    margin-bottom: 8px;
-    letter-spacing: -0.5px;
-  }
-
-  .subtitle {
-    text-align: center;
-    color: var(--muted);
-    font-size: 14px;
-    margin-bottom: 48px;
-  }
-
-  .screens-grid {
+    background: #1a2332;
     display: flex;
-    flex-wrap: wrap;
-    gap: 32px;
-    justify-content: center;
-    max-width: 1400px;
-    margin: 0 auto;
-  }
-
-  .screen-wrapper {
-    display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 12px;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'DM Sans', sans-serif;
   }
-
-  .screen-label {
-    font-family: 'Syne', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--primary);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    background: white;
-    padding: 4px 14px;
-    border-radius: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  }
-
-  /* Phone frame */
   .phone {
-    width: 320px;
-    height: 680px;
-    background: #1a1a2e;
-    border-radius: 44px;
-    padding: 12px;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.1) inset;
+    width: 360px;
+    height: 760px;
+    background: #111;
+    border-radius: 50px;
+    padding: 14px;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.08) inset, 0 0 0 8px #1e1e1e;
     position: relative;
     flex-shrink: 0;
   }
-
   .phone::before {
     content: '';
     position: absolute;
-    top: 20px;
-    left: 50%;
+    top: 22px; left: 50%;
     transform: translateX(-50%);
-    width: 80px;
-    height: 6px;
-    background: #2a2a3e;
-    border-radius: 3px;
+    width: 90px; height: 8px;
+    background: #222;
+    border-radius: 4px;
     z-index: 10;
   }
-
   .phone-screen {
-    width: 100%;
-    height: 100%;
+    width: 100%; height: 100%;
     background: var(--bg);
-    border-radius: 34px;
+    border-radius: 38px;
     overflow: hidden;
     position: relative;
   }
+  .screens { width: 100%; height: 100%; position: relative; }
+  .screen {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    opacity: 0; pointer-events: none;
+    transform: translateX(30px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .screen.active { opacity: 1; pointer-events: all; transform: translateX(0); }
+  .screen.exit { opacity: 0; transform: translateX(-30px); }
 
-  /* Status bar */
   .status-bar {
     background: var(--primary);
     padding: 10px 20px 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 11px;
-    color: white;
-    font-weight: 600;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 11px; color: white; font-weight: 600; flex-shrink: 0;
   }
-
   .status-bar .time { font-size: 13px; font-weight: 700; }
-  .status-icons { display: flex; gap: 6px; align-items: center; }
-  .status-icons span { font-size: 10px; }
 
-  /* Screen content area */
-  .screen-content {
-    height: calc(100% - 36px);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
+  .header {
+    background: var(--primary); padding: 12px 18px 14px; color: white;
+    flex-shrink: 0; display: flex; align-items: center; gap: 10px;
   }
-
-  /* ===== SCREEN 1: SPLASH / ONBOARDING ===== */
-  .splash {
-    background: linear-gradient(160deg, #1a4f8a 0%, #0d3060 60%, #081e3f 100%);
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .splash::before {
-    content: '';
-    position: absolute;
-    width: 300px; height: 300px;
-    border: 60px solid rgba(255,255,255,0.04);
-    border-radius: 50%;
-    top: -80px; right: -80px;
-  }
-
-  .splash::after {
-    content: '';
-    position: absolute;
-    width: 200px; height: 200px;
-    border: 40px solid rgba(245,166,35,0.1);
-    border-radius: 50%;
-    bottom: 60px; left: -50px;
-  }
-
-  .splash-logo {
-    width: 72px; height: 72px;
-    background: var(--accent);
-    border-radius: 20px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 32px;
-    margin-bottom: 20px;
-    box-shadow: 0 8px 30px rgba(245,166,35,0.4);
-  }
-
-  .splash h2 {
-    font-family: 'Syne', sans-serif;
-    font-size: 26px;
-    font-weight: 800;
-    color: white;
-    text-align: center;
-    line-height: 1.2;
-    margin-bottom: 8px;
-  }
-
-  .splash p {
-    color: rgba(255,255,255,0.6);
-    font-size: 13px;
-    text-align: center;
-    line-height: 1.5;
-    margin-bottom: 40px;
-  }
-
-  .splash-btn {
-    background: var(--accent);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 700;
-    font-size: 15px;
-    border: none;
-    border-radius: 14px;
-    padding: 15px 48px;
-    cursor: pointer;
-    box-shadow: 0 6px 24px rgba(245,166,35,0.4);
-    margin-bottom: 14px;
-    width: 100%;
-  }
-
-  .splash-link {
-    color: rgba(255,255,255,0.5);
-    font-size: 13px;
-    text-decoration: underline;
-  }
-
-  /* ===== SCREEN 2: HOME DASHBOARD ===== */
-  .home-header {
-    background: var(--primary);
-    padding: 16px 18px 20px;
-    color: white;
-  }
-
-  .home-header .greeting {
-    font-size: 12px;
-    opacity: 0.7;
-    margin-bottom: 2px;
-  }
-
-  .home-header .user-name {
-    font-family: 'Syne', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-  }
-
-  .home-header .location {
-    font-size: 11px;
-    opacity: 0.6;
-    margin-top: 4px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  .notif-badge {
-    position: absolute;
-    top: 16px;
-    right: 18px;
-    background: var(--accent);
-    color: var(--text);
-    font-size: 10px;
-    font-weight: 700;
-    width: 20px; height: 20px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-  }
-
-  .search-bar {
-    background: rgba(255,255,255,0.15);
-    border-radius: 10px;
-    padding: 8px 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 12px;
-    font-size: 12px;
-    color: rgba(255,255,255,0.5);
-  }
-
-  .home-scroll {
-    flex: 1;
-    overflow: hidden;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-
-  .section-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--text);
-    margin-bottom: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .services-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-  }
-
-  .service-item {
-    background: white;
-    border-radius: 12px;
-    padding: 10px 6px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  }
-
-  .service-icon {
-    width: 36px; height: 36px;
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px;
-  }
-
-  .service-icon.blue { background: #e8f0fe; }
-  .service-icon.orange { background: #fff4e0; }
-  .service-icon.green { background: #e8f8ee; }
-  .service-icon.purple { background: #f0ebff; }
-  .service-icon.red { background: #fee8e8; }
-  .service-icon.teal { background: #e0f5f5; }
-  .service-icon.yellow { background: #fefbe0; }
-  .service-icon.pink { background: #fee8f4; }
-
-  .service-label {
-    font-size: 9px;
-    color: var(--muted);
-    text-align: center;
-    font-weight: 500;
-    line-height: 1.2;
-  }
-
-  .alert-banner {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
-    border-radius: 12px;
-    padding: 12px 14px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: white;
-  }
-
-  .alert-icon { font-size: 20px; flex-shrink: 0; }
-
-  .alert-text .alert-title {
-    font-size: 12px;
-    font-weight: 700;
-  }
-
-  .alert-text .alert-body {
-    font-size: 10px;
-    opacity: 0.8;
-    margin-top: 2px;
-  }
-
-  .news-card {
-    background: white;
-    border-radius: 12px;
-    padding: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  }
-
-  .news-tag {
-    background: var(--light-blue);
-    color: var(--primary);
-    font-size: 9px;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 6px;
-    display: inline-block;
-    margin-bottom: 6px;
-    text-transform: uppercase;
-  }
-
-  .news-title {
-    font-size: 12px;
-    font-weight: 600;
-    line-height: 1.4;
-    margin-bottom: 6px;
-  }
-
-  .news-meta {
-    font-size: 10px;
-    color: var(--muted);
-  }
-
-  /* ===== SCREEN 3: REPORT ISSUE ===== */
-  .report-header {
-    background: var(--primary);
-    padding: 14px 18px 14px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: white;
-  }
-
+  .header h3 { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; }
   .back-btn {
-    width: 28px; height: 28px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px;
-    cursor: pointer;
+    width: 32px; height: 32px; background: rgba(255,255,255,0.15);
+    border-radius: 9px; display: flex; align-items: center; justify-content: center;
+    font-size: 16px; cursor: pointer; transition: background 0.15s; flex-shrink: 0;
   }
+  .back-btn:hover { background: rgba(255,255,255,0.25); }
 
-  .report-header h3 {
-    font-family: 'Syne', sans-serif;
-    font-size: 16px;
-    font-weight: 700;
-  }
+  .scroll { flex: 1; overflow-y: auto; padding: 14px; }
+  .scroll::-webkit-scrollbar { display: none; }
 
-  .report-body {
-    flex: 1;
-    overflow: hidden;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    background: var(--bg);
-  }
-
-  .form-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 6px;
-  }
-
-  .form-input {
-    background: white;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    padding: 10px 12px;
-    font-size: 12px;
-    color: var(--text);
-    width: 100%;
-  }
-
-  .category-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  .chip {
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
-    cursor: pointer;
-    border: 1.5px solid var(--border);
-    background: white;
-    color: var(--muted);
-  }
-
-  .chip.active {
-    background: var(--primary);
-    border-color: var(--primary);
-    color: white;
-  }
-
-  .photo-upload {
-    border: 2px dashed var(--border);
-    border-radius: 12px;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    background: white;
-  }
-
-  .photo-upload span { font-size: 22px; }
-  .photo-upload p { font-size: 11px; color: var(--muted); text-align: center; }
-
-  .location-row {
-    background: white;
-    border-radius: 10px;
-    padding: 10px 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    border: 1.5px solid var(--border);
-  }
-
-  .location-row span { font-size: 16px; }
-  .location-row p { font-size: 11px; color: var(--muted); }
-  .location-row strong { font-size: 12px; color: var(--text); font-weight: 600; }
-
-  .submit-btn {
-    background: var(--primary);
-    color: white;
-    border: none;
-    border-radius: 14px;
-    padding: 14px;
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 700;
-    font-size: 14px;
-    width: 100%;
-    cursor: pointer;
-    margin-top: auto;
-    box-shadow: 0 6px 20px rgba(26,79,138,0.3);
-  }
-
-  /* ===== SCREEN 4: PAYMENT ===== */
-  .pay-header {
-    background: linear-gradient(135deg, #1a4f8a, #2563b0);
-    padding: 14px 18px;
-    color: white;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .pay-header h3 {
-    font-family: 'Syne', sans-serif;
-    font-size: 16px;
-    font-weight: 700;
-  }
-
-  .pay-body {
-    flex: 1;
-    overflow: hidden;
-    padding: 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    background: var(--bg);
-  }
-
-  .bill-card {
-    background: white;
-    border-radius: 14px;
-    padding: 14px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-  }
-
-  .bill-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 7px 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 12px;
-  }
-
-  .bill-row:last-child { border-bottom: none; }
-  .bill-row .label { color: var(--muted); }
-  .bill-row .value { font-weight: 600; color: var(--text); }
-  .bill-row .total { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: var(--primary); }
-
-  .payment-methods {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .pay-method {
-    background: white;
-    border-radius: 12px;
-    padding: 12px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    border: 2px solid var(--border);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    cursor: pointer;
-  }
-
-  .pay-method.selected {
-    border-color: var(--primary);
-    background: var(--light-blue);
-  }
-
-  .pay-method .pay-logo { font-size: 22px; }
-  .pay-method .pay-name { font-size: 11px; font-weight: 600; color: var(--text); }
-
-  .pay-now-btn {
-    background: var(--green);
-    color: white;
-    border: none;
-    border-radius: 14px;
-    padding: 14px;
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 700;
-    font-size: 14px;
-    width: 100%;
-    cursor: pointer;
-    margin-top: auto;
-    box-shadow: 0 6px 20px rgba(39,174,96,0.3);
-  }
-
-  .secure-note {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    font-size: 10px;
-    color: var(--muted);
-  }
-
-  /* ===== SCREEN 5: TRACKER ===== */
-  .tracker-header {
-    background: var(--primary);
-    padding: 14px 18px;
-    color: white;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .tracker-header h3 {
-    font-family: 'Syne', sans-serif;
-    font-size: 16px;
-    font-weight: 700;
-  }
-
-  .tracker-body {
-    flex: 1;
-    overflow: hidden;
-    padding: 14px;
-    background: var(--bg);
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .request-card {
-    background: white;
-    border-radius: 14px;
-    padding: 12px 14px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-  }
-
-  .request-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 8px;
-  }
-
-  .request-title { font-size: 13px; font-weight: 600; }
-  .request-date { font-size: 10px; color: var(--muted); margin-top: 2px; }
-
-  .status-pill {
-    font-size: 10px;
-    font-weight: 700;
-    padding: 3px 10px;
-    border-radius: 20px;
-  }
-
-  .status-pill.processing { background: #fff4e0; color: #e67e22; }
-  .status-pill.resolved { background: #e8f8ee; color: var(--green); }
-  .status-pill.pending { background: #f0f0f0; color: var(--muted); }
-  .status-pill.urgent { background: #fee8e8; color: var(--red); }
-
-  .progress-bar {
-    height: 4px;
-    background: var(--border);
-    border-radius: 4px;
-    margin: 8px 0 6px;
-    overflow: hidden;
-  }
-
-  .progress-fill {
-    height: 100%;
-    border-radius: 4px;
-    background: var(--primary);
-  }
-
-  .request-dept {
-    font-size: 10px;
-    color: var(--muted);
-  }
-
-  .steps-row {
-    display: flex;
-    gap: 0;
-    align-items: center;
-    margin: 8px 0 4px;
-  }
-
-  .step {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex: 1;
-    position: relative;
-  }
-
-  .step::after {
-    content: '';
-    position: absolute;
-    top: 10px;
-    left: 50%;
-    width: 100%;
-    height: 2px;
-    background: var(--border);
-    z-index: 0;
-  }
-
-  .step:last-child::after { display: none; }
-
-  .step-dot {
-    width: 20px; height: 20px;
-    border-radius: 50%;
-    border: 2px solid var(--border);
-    background: white;
-    z-index: 1;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 10px;
-  }
-
-  .step-dot.done { background: var(--primary); border-color: var(--primary); color: white; }
-  .step-dot.active { border-color: var(--accent); background: var(--accent); }
-
-  .step-name { font-size: 8px; color: var(--muted); margin-top: 4px; text-align: center; }
-
-  /* ===== SCREEN 6: PROFILE ===== */
-  .profile-header {
-    background: linear-gradient(160deg, var(--primary), #0d3060);
-    padding: 20px 18px 28px;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .avatar {
-    width: 60px; height: 60px;
-    background: var(--accent);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 24px;
-    border: 3px solid rgba(255,255,255,0.3);
-    margin-bottom: 4px;
-  }
-
-  .profile-name { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; }
-  .profile-id { font-size: 11px; opacity: 0.6; }
-
-  .profile-stats {
-    display: flex;
-    gap: 0;
-    margin-top: 8px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 12px;
-    overflow: hidden;
-    width: 100%;
-  }
-
-  .stat-item {
-    flex: 1;
-    padding: 10px 8px;
-    text-align: center;
-    border-right: 1px solid rgba(255,255,255,0.1);
-  }
-
-  .stat-item:last-child { border-right: none; }
-
-  .stat-num { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; }
-  .stat-lbl { font-size: 9px; opacity: 0.6; margin-top: 2px; }
-
-  .profile-body {
-    flex: 1;
-    overflow: hidden;
-    background: var(--bg);
-    padding: 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .menu-section {
-    background: white;
-    border-radius: 14px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  }
-
-  .menu-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
-    border-bottom: 1px solid var(--border);
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-  }
-
-  .menu-item:last-child { border-bottom: none; }
-
-  .menu-icon {
-    width: 32px; height: 32px;
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 15px;
-  }
-
-  .menu-arrow { margin-left: auto; color: var(--muted); font-size: 12px; }
-
-  /* Bottom nav */
   .bottom-nav {
-    display: flex;
-    background: white;
-    border-top: 1px solid var(--border);
-    padding: 8px 0 6px;
+    display: flex; background: white; border-top: 1px solid var(--border);
+    padding: 8px 0 6px; flex-shrink: 0;
   }
-
   .nav-item {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    font-size: 8px;
-    color: var(--muted);
-    font-weight: 500;
-    cursor: pointer;
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+    font-size: 9px; color: var(--muted); font-weight: 600; cursor: pointer; transition: color 0.15s;
   }
-
-  .nav-item span { font-size: 18px; }
+  .nav-item span { font-size: 20px; }
   .nav-item.active { color: var(--primary); }
-  .nav-item.active span { filter: none; }
+
+  /* SPLASH */
+  #splash .content {
+    flex: 1; background: linear-gradient(160deg, #1a4f8a 0%, #0d3060 60%, #081e3f 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 32px 24px; position: relative; overflow: hidden;
+  }
+  #splash .content::before {
+    content: ''; position: absolute; width: 300px; height: 300px;
+    border: 60px solid rgba(255,255,255,0.04); border-radius: 50%; top: -80px; right: -80px;
+  }
+  #splash .content::after {
+    content: ''; position: absolute; width: 200px; height: 200px;
+    border: 40px solid rgba(245,166,35,0.1); border-radius: 50%; bottom: 60px; left: -50px;
+  }
+  .splash-logo {
+    width: 80px; height: 80px; background: var(--accent); border-radius: 24px;
+    display: flex; align-items: center; justify-content: center; font-size: 36px;
+    margin-bottom: 24px; box-shadow: 0 10px 40px rgba(245,166,35,0.4); z-index: 1;
+  }
+  #splash h2 {
+    font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800;
+    color: white; text-align: center; line-height: 1.2; margin-bottom: 10px; z-index: 1;
+  }
+  #splash p { color: rgba(255,255,255,0.6); font-size: 13px; text-align: center; line-height: 1.6; margin-bottom: 40px; z-index: 1; }
+  .btn-primary {
+    background: var(--accent); color: #1a2332; font-family: 'DM Sans', sans-serif;
+    font-weight: 700; font-size: 15px; border: none; border-radius: 14px; padding: 15px;
+    cursor: pointer; box-shadow: 0 6px 24px rgba(245,166,35,0.4); width: 100%; z-index: 1;
+    transition: transform 0.1s;
+  }
+  .btn-primary:hover { transform: translateY(-1px); }
+  .btn-link { color: rgba(255,255,255,0.45); font-size: 13px; margin-top: 14px; cursor: pointer; z-index: 1; text-decoration: underline; }
+
+  /* LOGIN */
+  .login-body { flex: 1; padding: 24px 20px; display: flex; flex-direction: column; gap: 14px; background: var(--bg); overflow-y: auto; }
+  .login-top { text-align: center; margin-bottom: 4px; }
+  .login-top h2 { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: var(--primary); margin-top: 6px; }
+  .login-top p { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .form-input {
+    background: white; border: 1.5px solid var(--border); border-radius: 12px;
+    padding: 11px 14px; font-size: 13px; color: var(--text); width: 100%;
+    font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.15s;
+  }
+  .form-input:focus { border-color: var(--primary); }
+  .btn-green {
+    background: var(--green); color: white; font-family: 'DM Sans', sans-serif;
+    font-weight: 700; font-size: 14px; border: none; border-radius: 14px; padding: 14px;
+    cursor: pointer; box-shadow: 0 6px 20px rgba(39,174,96,0.3); transition: transform 0.1s;
+  }
+  .btn-green:hover { transform: translateY(-1px); }
+  .or-div { text-align: center; font-size: 12px; color: var(--muted); position: relative; }
+  .or-div::before, .or-div::after { content: ''; position: absolute; top: 50%; width: 40%; height: 1px; background: var(--border); }
+  .or-div::before { left: 0; } .or-div::after { right: 0; }
+
+  /* HOME */
+  .home-header { background: var(--primary); padding: 14px 18px 16px; color: white; flex-shrink: 0; position: relative; }
+  .user-name { font-family: 'Syne', sans-serif; font-size: 19px; font-weight: 700; }
+  .notif-dot {
+    position: absolute; top: 14px; right: 18px; background: var(--accent); color: #1a2332;
+    font-size: 10px; font-weight: 800; width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .search-bar {
+    background: rgba(255,255,255,0.15); border-radius: 10px; padding: 9px 12px;
+    display: flex; align-items: center; gap: 8px; margin-top: 12px;
+    font-size: 12px; color: rgba(255,255,255,0.5); cursor: pointer;
+  }
+  .sec-title { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .services-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .svc-tile {
+    background: white; border-radius: 14px; padding: 10px 6px;
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.15s;
+  }
+  .svc-tile:hover { transform: translateY(-2px); }
+  .svc-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .svc-lbl { font-size: 9px; color: var(--muted); text-align: center; font-weight: 600; line-height: 1.2; }
+  .alert-card {
+    background: linear-gradient(135deg, #e74c3c, #c0392b); border-radius: 14px;
+    padding: 12px 14px; display: flex; align-items: center; gap: 10px; color: white; cursor: pointer; transition: opacity 0.15s;
+  }
+  .alert-card:hover { opacity: 0.9; }
+  .news-card {
+    background: white; border-radius: 14px; padding: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.15s; margin-bottom: 8px;
+  }
+  .news-card:hover { transform: translateY(-2px); }
+  .news-tag { background: var(--light-blue); color: var(--primary); font-size: 9px; font-weight: 700; padding: 3px 9px; border-radius: 6px; display: inline-block; margin-bottom: 6px; text-transform: uppercase; }
+  .news-title { font-size: 12px; font-weight: 600; line-height: 1.4; margin-bottom: 5px; }
+  .news-meta { font-size: 10px; color: var(--muted); }
+
+  /* SERVICES LIST */
+  .svc-row {
+    background: white; border-radius: 14px; padding: 14px; display: flex; align-items: center; gap: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.15s; margin-bottom: 8px;
+  }
+  .svc-row:hover { transform: translateX(3px); }
+  .svc-row-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+  .svc-row-name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .svc-row-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* REPORT */
+  .chip-group { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;
+    cursor: pointer; border: 1.5px solid var(--border); background: white; color: var(--muted); transition: all 0.15s;
+  }
+  .chip.active { background: var(--primary); border-color: var(--primary); color: white; }
+  .chip:hover:not(.active) { border-color: var(--primary); color: var(--primary); }
+  .photo-zone {
+    border: 2px dashed var(--border); border-radius: 14px; padding: 18px;
+    display: flex; flex-direction: column; align-items: center; gap: 6px; background: white; cursor: pointer; transition: border-color 0.15s;
+  }
+  .photo-zone:hover { border-color: var(--primary); }
+  .loc-row { background: white; border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; border: 1.5px solid var(--border); }
+  .btn-submit {
+    background: var(--primary); color: white; border: none; border-radius: 14px;
+    padding: 14px; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 14px;
+    width: 100%; cursor: pointer; box-shadow: 0 6px 20px rgba(26,79,138,0.3); transition: transform 0.1s;
+  }
+  .btn-submit:hover { transform: translateY(-1px); }
+
+  /* SUCCESS */
+  .success-body {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 32px 24px; gap: 14px; text-align: center;
+  }
+  .ref-box { background: var(--light-blue); border-radius: 12px; padding: 12px 20px; width: 100%; }
+  .ref-label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; }
+  .ref-num { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: var(--primary); margin-top: 4px; }
+  .btn-outline { background: white; color: var(--primary); border: 2px solid var(--primary); border-radius: 14px; padding: 13px; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 14px; width: 100%; cursor: pointer; transition: all 0.15s; }
+  .btn-outline:hover { background: var(--light-blue); }
+
+  /* PAYMENT */
+  .bill-card { background: white; border-radius: 14px; padding: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+  .bill-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+  .bill-row:last-child { border: none; padding-top: 10px; border-top: 2px solid var(--border) !important; }
+  .bill-label { color: var(--muted); }
+  .bill-val { font-weight: 600; }
+  .bill-total { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: var(--primary); }
+  .pay-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .pay-opt {
+    background: white; border-radius: 12px; padding: 12px 8px; display: flex; flex-direction: column;
+    align-items: center; gap: 6px; border: 2px solid var(--border); cursor: pointer; transition: all 0.15s;
+  }
+  .pay-opt:hover { border-color: var(--primary); }
+  .pay-opt.selected { border-color: var(--primary); background: var(--light-blue); }
+  .pay-opt .plogo { font-size: 24px; }
+  .pay-opt .pname { font-size: 11px; font-weight: 700; color: var(--text); }
+
+  /* TRACKER */
+  .req-card { background: white; border-radius: 14px; padding: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); margin-bottom: 10px; cursor: pointer; transition: transform 0.15s; }
+  .req-card:hover { transform: translateY(-2px); }
+  .req-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .req-title { font-size: 13px; font-weight: 600; }
+  .req-date { font-size: 10px; color: var(--muted); margin-top: 2px; }
+  .pill { font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+  .pill.processing { background: #fff4e0; color: #e67e22; }
+  .pill.resolved { background: #e8f8ee; color: var(--green); }
+  .pill.pending { background: #f0f0f0; color: var(--muted); }
+  .steps { display: flex; align-items: flex-start; }
+  .step { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; }
+  .step::after { content: ''; position: absolute; top: 10px; left: 50%; width: 100%; height: 2px; background: var(--border); z-index: 0; }
+  .step:last-child::after { display: none; }
+  .sdot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border); background: white; z-index: 1; display: flex; align-items: center; justify-content: center; font-size: 9px; }
+  .sdot.done { background: var(--primary); border-color: var(--primary); color: white; }
+  .sdot.active { border-color: var(--accent); background: var(--accent); color: white; }
+  .sname { font-size: 8px; color: var(--muted); margin-top: 4px; text-align: center; }
+  .pbar { height: 4px; background: var(--border); border-radius: 4px; margin: 8px 0 6px; overflow: hidden; }
+  .pfill { height: 100%; border-radius: 4px; }
+
+  /* PROFILE */
+  .prof-head {
+    background: linear-gradient(160deg, var(--primary), #0d3060);
+    padding: 20px 18px 24px; color: white; display: flex; flex-direction: column;
+    align-items: center; gap: 8px; flex-shrink: 0;
+  }
+  .avatar { width: 64px; height: 64px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; border: 3px solid rgba(255,255,255,0.3); margin-bottom: 4px; }
+  .pname { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; }
+  .pid { font-size: 11px; opacity: 0.6; }
+  .pstats { display: flex; background: rgba(255,255,255,0.1); border-radius: 12px; overflow: hidden; width: 100%; margin-top: 8px; }
+  .pstat { flex: 1; padding: 10px 8px; text-align: center; border-right: 1px solid rgba(255,255,255,0.1); }
+  .pstat:last-child { border-right: none; }
+  .pstat-num { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800; }
+  .pstat-lbl { font-size: 9px; opacity: 0.6; margin-top: 1px; }
+  .menu-sec { background: white; border-radius: 14px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 10px; }
+  .menu-item { display: flex; align-items: center; gap: 12px; padding: 13px 14px; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.15s; }
+  .menu-item:last-child { border-bottom: none; }
+  .menu-item:hover { background: var(--bg); }
+  .micon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .marr { margin-left: auto; color: var(--muted); font-size: 14px; }
+
+  /* NOTIFICATIONS */
+  .notif-item { background: white; border-radius: 14px; padding: 12px 14px; margin-bottom: 8px; display: flex; gap: 12px; align-items: flex-start; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: transform 0.15s; }
+  .notif-item:hover { transform: translateX(3px); }
+  .notif-item.unread { border-left: 3px solid var(--primary); }
+  .ni-icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+  .ni-title { font-size: 12px; font-weight: 600; margin-bottom: 3px; }
+  .ni-body { font-size: 11px; color: var(--muted); line-height: 1.4; }
+  .ni-time { font-size: 10px; color: var(--muted); margin-top: 4px; }
+
+  /* EMERGENCY */
+  .emg-hdr { background: linear-gradient(135deg, #e74c3c, #8b0000); padding: 12px 18px; color: white; flex-shrink: 0; display: flex; align-items: center; gap: 10px; }
+  .emg-banner { background: linear-gradient(135deg, #e74c3c, #c0392b); border-radius: 14px; padding: 16px; color: white; margin-bottom: 12px; }
+  .emg-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800; margin-bottom: 6px; }
+  .emg-lvl { display: inline-block; background: rgba(255,255,255,0.2); padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; margin-bottom: 8px; }
+  .evac-card { background: white; border-radius: 14px; padding: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 8px; }
+  .evac-name { font-size: 13px; font-weight: 700; }
+  .evac-info { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .evac-badges { display: flex; gap: 8px; margin-top: 8px; }
+  .ebadge { font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+  .ebadge.open { background: #e8f8ee; color: var(--green); }
+  .ebadge.full { background: #fee8e8; color: var(--red); }
+  .hotline { background: var(--primary); border-radius: 14px; padding: 14px; color: white; margin-bottom: 8px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: opacity 0.15s; }
+  .hotline:hover { opacity: 0.9; }
+  .hotline-name { font-size: 13px; font-weight: 700; }
+  .hotline-num { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800; margin-top: 2px; }
+
+  /* PERMIT */
+  .permit-steps { display: flex; margin-bottom: 16px; }
+  .pstep { flex: 1; text-align: center; position: relative; }
+  .pstep::after { content: ''; position: absolute; top: 12px; left: 50%; width: 100%; height: 2px; background: var(--border); z-index: 0; }
+  .pstep:last-child::after { display: none; }
+  .pstep-dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); background: white; margin: 0 auto 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; z-index: 1; position: relative; font-weight: 700; color: var(--muted); }
+  .pstep-dot.active { background: var(--primary); border-color: var(--primary); color: white; }
+  .pstep-dot.done { background: var(--green); border-color: var(--green); color: white; }
+  .pstep-lbl { font-size: 9px; color: var(--muted); font-weight: 600; }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: #1a2332; color: white; padding: 10px 20px; border-radius: 30px;
+    font-size: 13px; font-weight: 600; white-space: nowrap; z-index: 999;
+    transition: transform 0.3s ease; box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .gap { display: flex; flex-direction: column; gap: 12px; }
 </style>
 </head>
 <body>
 
-<h1 class="page-title">🌐 Talisay G2C App</h1>
-<p class="subtitle">Digital Ecosystem Mockup · Xylvir Technologies Corp. · v1.0 2026</p>
+<div class="phone">
+  <div class="phone-screen">
+    <div class="screens">
 
-<div class="screens-grid">
-
-  <!-- SCREEN 1: SPLASH -->
-  <div class="screen-wrapper">
-    <div class="phone">
-      <div class="phone-screen">
-        <div class="status-bar">
-          <span class="time">9:41</span>
-          <div class="status-icons"><span>📶</span><span>🔋</span></div>
-        </div>
-        <div class="screen-content">
-          <div class="splash">
-            <div class="splash-logo">🏛️</div>
-            <h2>Talisay City<br>Digital Services</h2>
-            <p>Your all-in-one platform for government services, community reporting, and city updates.</p>
-            <button class="splash-btn">Get Started</button>
-            <span class="splash-link">Already have an account? Log in</span>
-          </div>
+      <!-- 1. SPLASH -->
+      <div class="screen active" id="splash">
+        <div class="status-bar"><span class="time">9:41</span><span>📶 🔋</span></div>
+        <div class="content">
+          <div class="splash-logo">🏛️</div>
+          <h2>Talisay City<br>Digital Services</h2>
+          <p>Your all-in-one platform for government services, community reporting, and city updates.</p>
+          <button class="btn-primary" onclick="go('home')">Get Started</button>
+          <span class="btn-link" onclick="go('login')">Already have an account? Log in</span>
         </div>
       </div>
-    </div>
-    <div class="screen-label">01 · Onboarding</div>
-  </div>
 
-  <!-- SCREEN 2: HOME -->
-  <div class="screen-wrapper">
-    <div class="phone">
-      <div class="phone-screen">
-        <div class="status-bar" style="position:relative">
-          <span class="time">9:41</span>
-          <div class="status-icons"><span>📶</span><span>🔋</span></div>
-          <div class="notif-badge">3</div>
+      <!-- 2. LOGIN -->
+      <div class="screen" id="login">
+        <div class="status-bar"><span class="time">9:41</span><span>📶 🔋</span></div>
+        <div class="header"><div class="back-btn" onclick="back()">←</div><h3>Sign In</h3></div>
+        <div class="login-body">
+          <div class="login-top"><div style="font-size:40px">🏛️</div><h2>Welcome back</h2><p>Sign in to your Talisay City account</p></div>
+          <div class="form-group"><div class="form-label">Mobile / Email</div><input class="form-input" type="text" value="09171234567"></div>
+          <div class="form-group"><div class="form-label">Password</div><input class="form-input" type="password" value="password"></div>
+          <button class="btn-green" onclick="go('home')">Sign In</button>
+          <div class="or-div">or</div>
+          <button class="btn-primary" style="background:var(--light-blue);color:var(--primary);box-shadow:none;" onclick="go('home')">Continue with PhilSys ID 🪪</button>
+          <p style="font-size:12px;color:var(--muted);text-align:center;">Don't have an account? <span style="color:var(--primary);font-weight:700;cursor:pointer;" onclick="toast('Registration coming soon!')">Register</span></p>
         </div>
-        <div class="screen-content">
-          <div class="home-header" style="position:relative">
-            <div class="greeting">Good morning,</div>
-            <div class="user-name">Juan dela Cruz 👋</div>
-            <div class="location">📍 Brgy. Pooc, Talisay City</div>
-            <div class="search-bar">🔍 Search services...</div>
-          </div>
-          <div class="home-scroll">
+      </div>
+
+      <!-- 3. HOME -->
+      <div class="screen" id="home">
+        <div class="status-bar"><span class="time">9:41</span><span>📶 🔋</span></div>
+        <div class="home-header">
+          <div style="font-size:12px;opacity:0.65;">Good morning,</div>
+          <div class="user-name">Juan dela Cruz 👋</div>
+          <div style="font-size:11px;opacity:0.6;margin-top:3px;">📍 Brgy. Pooc, Talisay City</div>
+          <div class="search-bar" onclick="go('services')">🔍 Search services...</div>
+          <div class="notif-dot" onclick="go('notifications')">3</div>
+        </div>
+        <div class="scroll">
+          <div class="gap">
             <div>
-              <div class="section-title">Quick Services</div>
+              <div class="sec-title">Quick Services</div>
               <div class="services-grid">
-                <div class="service-item">
-                  <div class="service-icon blue">📄</div>
-                  <div class="service-label">Business Permit</div>
-                </div>
-                <div class="service-item">
-                  <div class="service-icon orange">🏠</div>
-                  <div class="service-label">RPT Payment</div>
-                </div>
-                <div class="service-item">
-                  <div class="service-icon green">📋</div>
-                  <div class="service-label">Civil Registry</div>
-                </div>
-                <div class="service-item">
-                  <div class="service-icon red">🚨</div>
-                  <div class="service-label">Report Issue</div>
-                </div>
-                <div class="service-item">
-                  <div class="service-icon purple">💊</div>
-                  <div class="service-label">Medical Assist</div>
-                </div>
-                <div class="service-item">
-                  <div class="service-icon teal">🗺️</div>
-                  <div class="service-label">Barangay Map</div>
-                </div>
-                <div class="service-item">
-                  <div class="service-icon yellow">📢</div>
-                  <div class="service-label">Announcements</div>
-                </div>
-                <div class="service-item">
-                  <div class="service-icon pink">🙋</div>
-                  <div class="service-label">Request Aid</div>
-                </div>
+                <div class="svc-tile" onclick="go('permit')"><div class="svc-icon" style="background:#e8f0fe">📄</div><div class="svc-lbl">Business Permit</div></div>
+                <div class="svc-tile" onclick="go('payment')"><div class="svc-icon" style="background:#fff4e0">🏠</div><div class="svc-lbl">RPT Payment</div></div>
+                <div class="svc-tile" onclick="toast('Civil Registry coming soon')"><div class="svc-icon" style="background:#e8f8ee">📋</div><div class="svc-lbl">Civil Registry</div></div>
+                <div class="svc-tile" onclick="go('report')"><div class="svc-icon" style="background:#fee8e8">🚨</div><div class="svc-lbl">Report Issue</div></div>
+                <div class="svc-tile" onclick="toast('Medical Assist coming soon')"><div class="svc-icon" style="background:#f0ebff">💊</div><div class="svc-lbl">Medical Assist</div></div>
+                <div class="svc-tile" onclick="toast('Barangay Map coming soon')"><div class="svc-icon" style="background:#e0f5f5">🗺️</div><div class="svc-lbl">Barangay Map</div></div>
+                <div class="svc-tile" onclick="go('notifications')"><div class="svc-icon" style="background:#fefbe0">📢</div><div class="svc-lbl">Announcements</div></div>
+                <div class="svc-tile" onclick="toast('Aid Request coming soon')"><div class="svc-icon" style="background:#fee8f4">🙋</div><div class="svc-lbl">Request Aid</div></div>
               </div>
             </div>
-            <div class="alert-banner">
-              <div class="alert-icon">⚠️</div>
-              <div class="alert-text">
-                <div class="alert-title">Typhoon Preparedness Alert</div>
-                <div class="alert-body">LPA signal #1 — All evacuation centers open. Tap for details.</div>
-              </div>
+            <div class="alert-card" onclick="go('emergency')">
+              <div style="font-size:22px;flex-shrink:0;">⚠️</div>
+              <div><div style="font-size:12px;font-weight:700;">Typhoon Preparedness Alert</div><div style="font-size:10px;opacity:0.8;margin-top:2px;">LPA signal #1 — Tap to view evacuation centers</div></div>
             </div>
             <div>
-              <div class="section-title">Latest News</div>
-              <div class="news-card">
+              <div class="sec-title">Latest News</div>
+              <div class="news-card" onclick="go('notifications')">
                 <span class="news-tag">Announcement</span>
                 <div class="news-title">City Hall to extend hours for Business Permit renewal until Feb 28</div>
                 <div class="news-meta">Feb 20, 2026 · City Mayor's Office</div>
               </div>
+              <div class="news-card" onclick="go('notifications')">
+                <span class="news-tag" style="background:#e8f8ee;color:var(--green);">Health</span>
+                <div class="news-title">Free Medical Mission this Saturday at Brgy. San Isidro</div>
+                <div class="news-meta">Feb 19, 2026 · City Health Office</div>
+              </div>
             </div>
           </div>
-          <div class="bottom-nav">
-            <div class="nav-item active"><span>🏠</span>Home</div>
-            <div class="nav-item"><span>🛠️</span>Services</div>
-            <div class="nav-item"><span>📋</span>Tracker</div>
-            <div class="nav-item"><span>👤</span>Profile</div>
+        </div>
+        <div class="bottom-nav">
+          <div class="nav-item active" onclick="go('home')"><span>🏠</span>Home</div>
+          <div class="nav-item" onclick="go('services')"><span>🛠️</span>Services</div>
+          <div class="nav-item" onclick="go('tracker')"><span>📋</span>Tracker</div>
+          <div class="nav-item" onclick="go('profile')"><span>👤</span>Profile</div>
+        </div>
+      </div>
+
+      <!-- 4. SERVICES -->
+      <div class="screen" id="services">
+        <div class="status-bar"><span class="time">9:41</span><span>📶 🔋</span></div>
+        <div class="header"><div class="back-btn" onclick="back()">←</div><h3>All Services</h3></div>
+        <div class="scroll">
+          <div class="sec-title">Permits & Payments</div>
+          <div class="svc-row" onclick="go('permit')"><div class="svc-row-icon" style="background:#e8f0fe">📄</div><div><div class="svc-row-name">Business Permit</div><div class="svc-row-desc">Apply or renew your business permit</div></div><div style="margin-left:auto;color:var(--muted);font-size:16px;">›</div></div>
+          <div class="svc-row" onclick="go('payment')"><div class="svc-row-icon" style="background:#fff4e0">🏠</div><div><div class="svc-row-name">Real Property Tax</div><div class="svc-row-desc">Pay RPT online, get official receipt</div></div><div style="margin-left:auto;color:var(--muted);font-size:16px;">›</div></div>
+          <div class="sec-title" style="margin-top:4px;">Community</div>
+          <div class="svc-row" onclick="go('report')"><div class="svc-row-icon" style="background:#fee8e8">🚨</div><div><div class="svc-row-name">Report an Issue</div><div class="svc-row-desc">Flooding, road damage, streetlights...</div></div><div style="margin-left:auto;color:var(--muted);font-size:16px;">›</div></div>
+          <div class="svc-row" onclick="go('emergency')"><div class="svc-row-icon" style="background:#fee8e8">⛑️</div><div><div class="svc-row-name">Emergency & Disaster</div><div class="svc-row-desc">Alerts, evacuation centers, hotlines</div></div><div style="margin-left:auto;color:var(--muted);font-size:16px;">›</div></div>
+          <div class="sec-title" style="margin-top:4px;">Social Services</div>
+          <div class="svc-row" onclick="toast('Civil Registry coming soon')"><div class="svc-row-icon" style="background:#e8f8ee">📋</div><div><div class="svc-row-name">Civil Registry</div><div class="svc-row-desc">Request birth, marriage, death certificates</div></div><div style="margin-left:auto;color:var(--muted);font-size:16px;">›</div></div>
+          <div class="svc-row" onclick="toast('Medical Assist coming soon')"><div class="svc-row-icon" style="background:#f0ebff">💊</div><div><div class="svc-row-name">Medical Assistance</div><div class="svc-row-desc">Financial aid for hospitalization</div></div><div style="margin-left:auto;color:var(--muted);font-size:16px;">›</div></div>
+          <div class="svc-row" onclick="toast('Aid Request coming soon')"><div class="svc-row-icon" style="background:#fee8f4">🙋</div><div><div class="svc-row-name">Request Aid</div><div class="svc-row-desc">Social welfare and livelihood assistance</div></div><div style="margin-left:auto;color:var(--muted);font-size:16px;">›</div></div>
+          <div class="svc-row" onclick="toast('Barangay Clearance coming soon')"><div class="svc-row-icon" style="background:#e0f5f5">🏷️</div><div><div class="svc-row-name">Barangay Clearance</div><div class="svc-row-desc">Request clearance from your barangay</div></div><div style="margin-left:auto;color:var(--muted);font-size:16px;">›</div></div>
+        </div>
+        <div class="bottom-nav">
+          <div class="nav-item" onclick="go('home')"><span>🏠</span>Home</div>
+          <div class="nav-item active" onclick="go('services')"><span>🛠️</span>Services</div>
+          <div class="nav-item" onclick="go('tracker')"><span>📋</span>Tracker</div>
+          <div class="nav-item" onclick="go('profile')"><span>👤</span>Profile</div>
+        </div>
+      </div>
+
+      <!-- 5. REPORT -->
+      <div class="screen" id="report">
+        <div class="status-bar"><span class="time">9:41</span><span>📶 🔋</span></div>
+        <div class="header"><div class="back-btn" onclick="back()">←</div><h3>Report an Issue</h3></div>
+        <div class="scroll">
+          <div class="gap">
+            <div><div class="form-label">Category</div><div class="chip-group"><div class="chip" onclick="chip(this)">🚧 Road</div><div class="chip active" onclick="chip(this)">💧 Flooding</div><div class="chip" onclick="chip(this)">🗑️ Garbage</div><div class="chip" onclick="chip(this)">💡 Streetlight</div><div class="chip" onclick="chip(this)">🔊 Noise</div><div class="chip" onclick="chip(this)">⚡ Power</div></div></div>
+            <div class="form-group"><div class="form-label">Description</div><textarea class="form-input" rows="3" style="resize:none;">Flooding near Sitio 3, water level has reached knee height...</textarea></div>
+            <div><div class="form-label">Add Photo</div><div class="photo-zone" onclick="toast('Camera/Gallery opening...')"><span style="font-size:28px">📷</span><p style="font-size:11px;color:var(--muted);text-align:center;">Tap to upload · Max 10MB</p></div></div>
+            <div><div class="form-label">Location</div><div class="loc-row"><span style="font-size:18px">📍</span><div><div style="font-size:12px;font-weight:700;">Brgy. Pooc, Talisay City</div><div style="font-size:10px;color:var(--muted);">GPS auto-detected · Tap to change</div></div></div></div>
+            <div><div class="form-label">Priority</div><div class="chip-group"><div class="chip" onclick="chip(this)">🟢 Low</div><div class="chip active" onclick="chip(this)">🟡 Medium</div><div class="chip" onclick="chip(this)">🔴 High</div></div></div>
+            <button class="btn-submit" onclick="go('report-success')">Submit Report</button>
           </div>
         </div>
       </div>
-    </div>
-    <div class="screen-label">02 · Home Dashboard</div>
-  </div>
 
-  <!-- SCREEN 3: REPORT ISSUE -->
-  <div class="screen-wrapper">
-    <div class="phone">
-      <div class="phone-screen">
-        <div class="status-bar">
-          <span class="time">9:41</span>
-          <div class="status-icons"><span>📶</span><span>🔋</span></div>
-        </div>
-        <div class="screen-content">
-          <div class="report-header">
-            <div class="back-btn">←</div>
-            <h3>Report an Issue</h3>
-          </div>
-          <div class="report-body">
-            <div>
-              <div class="form-label">Category</div>
-              <div class="category-chips">
-                <div class="chip">🚧 Road</div>
-                <div class="chip active">💧 Flooding</div>
-                <div class="chip">🗑️ Garbage</div>
-                <div class="chip">💡 Streetlight</div>
-                <div class="chip">🔊 Noise</div>
-                <div class="chip">⚡ Power</div>
-              </div>
-            </div>
-            <div>
-              <div class="form-label">Description</div>
-              <div class="form-input" style="min-height:52px; color: #999; font-size:12px">Flooding near Sitio 3, water level has reached knee height...</div>
-            </div>
-            <div>
-              <div class="form-label">Add Photo</div>
-              <div class="photo-upload">
-                <span>📷</span>
-                <p>Tap to upload a photo<br>Max 10MB · JPG/PNG</p>
-              </div>
-            </div>
-            <div>
-              <div class="form-label">Location</div>
-              <div class="location-row">
-                <span>📍</span>
-                <div>
-                  <strong>Brgy. Pooc, Talisay City</strong>
-                  <p>GPS auto-detected · Tap to change</p>
-                </div>
-              </div>
-            </div>
-            <button class="submit-btn">Submit Report</button>
-          </div>
+      <!-- 6. REPORT SUCCESS -->
+      <div class="screen" id="report-success">
+        <div class="status-bar"><span class="time">9:41</span><span>📶 🔋</span></div>
+        <div class="success-body">
+          <div style="font-size:72px">✅</div>
+          <h2 style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--green);">Report Submitted!</h2>
+          <p style="font-size:13px;color:var(--muted);line-height:1.6;">Your report has been received and routed to <strong>DRRMO</strong>. You'll receive updates via SMS and in-app notification.</p>
+          <div class="ref-box"><div class="ref-label">Reference Number</div><div class="ref-num">RPT-2026-00847</div></div>
+          <p style="font-size:11px;color:var(--muted);">⏱ Expected resolution: within 48 hours</p>
+          <button class="btn-submit" onclick="go('tracker')">Track My Report</button>
+          <button class="btn-outline" onclick="go('home')">Back to Home</button>
         </div>
       </div>
-    </div>
-    <div class="screen-label">03 · Report Issue</div>
-  </div>
 
-  <!-- SCREEN 4: PAYMENT -->
-  <div class="screen-wrapper">
-    <div class="phone">
-      <div class="phone-screen">
-        <div class="status-bar">
-          <span class="time">9:41</span>
-          <div class="status-icons"><span>📶</span><span>🔋</span></div>
-        </div>
-        <div class="screen-content">
-          <div class="pay-header">
-            <div class="back-btn" style="background:rgba(255,255,255,0.15);border-radius:8px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;">←</div>
-            <h3>Real Property Tax</h3>
-          </div>
-          <div class="pay-body">
+      <!-- 7. PAYMENT -->
+      <div class="screen" id="payment">
+        <div class="status-bar"><span class="time">9:41</span><span>📶 🔋</span></div>
+        <div class="header"><div class="back-btn" onclick="back()">←</div><h3>Real Property Tax</h3></div>
+        <div class="scroll">
+          <div class="gap">
             <div class="bill-card">
-              <div class="bill-row">
-                <span class="label">Property ID</span>
-                <span class="value">TLY-2024-00432</span>
-              </div>
-              <div class="bill-row">
-                <span class="label">Owner</span>
-                <span class="value">Juan C. dela Cruz</span>
-              </div>
-              <div class="bill-row">
-                <span class="label">Tax Period</span>
-                <span class="value">Jan – Dec 2026</span>
-              </div>
-              <div class="bill-row">
-                <span class="label">Basic Tax</span>
-                <span class="value">₱3,200.00</span>
-              </div>
-              <div class="bill-row">
-                <span class="label">SEF</span>
-                <span class="value">₱800.00</span>
-              </div>
-              <div class="bill-row" style="border-top: 2px solid var(--border); padding-top:10px; margin-top:4px;">
-                <span class="label" style="font-weight:700;">Total Due</span>
-                <span class="total">₱4,000.00</span>
-              </div>
+              <div class="bill-row"><span class="bill-label">Property ID</span><span class="bill-val">TLY-2024-00432</span></div>
+              <div class="bill-row"><span class="bill-label">Owner</span><span class="bill-val">Juan C. dela Cruz</span></div>
+              <div class="bill-row"><span class="bill-label">Tax Period</span><span class="bill-val">Jan – Dec 2026</span></div>
+              <div class="bill-row"><span class="bill-label">Basic Tax</span><span class="bill-val">₱3,200.00</span></div>
+              <div class="bill-row"><span class="bill-label">SEF</span><span class="bill-val">₱800.00</span></div>
+              <div class="bill-row"><span class="bill-label" style="font-weight:700;">Total Due</span><span class="bill-total">₱4,000.00</span></div>
             </div>
             <div>
-              <div class="form-label">Choose Payment Method</div>
-              <div class="payment-methods">
-                <div class="pay-method selected">
-                  <div class="pay-logo">📱</div>
-                  <div class="pay-name">GCash</div>
-                </div>
-                <div class="pay-method">
-                  <div class="pay-logo">💳</div>
-                  <div class="pay-name">PayMaya</div>
-                </div>
-                <div class="pay-method">
-                  <div class="pay-logo">🏦</div>
-                  <div class="pay-name">UnionBank</div>
-                </div>
-                <div class="pay-method">
-                  <div class="pay-logo">💰</div>
-                  <div class="pay-name">LandBank</div>
-                </div>
+              <div class="form-label">Payment Method</div>
+              <div class="pay-grid">
+                <div class="pay-opt selected" onclick="payOpt(this,'GCash')"><div class="plogo">📱</div><div class="pname">GCash</div></div>
+                <div class="pay-opt" onclick="payOpt(this,'PayMaya')"><div class="plogo">💳</div><div class="pname">PayMaya</div></div>
+                <div class="pay-opt" onclick="payOpt(this,'UnionBank')"><div class="plogo">🏦</div><div class="pname">UnionBank</div></div>
+                <div class="pay-opt" onclick="payOpt(this,'LandBank')"><div class="plogo">💰</div><div class="pname">LandBank</div></div>
               </div>
             </div>
-            <button class="pay-now-btn">Pay ₱4,000.00 via GCash</button>
-            <div class="secure-note">🔒 Secured by SSL · PCI-DSS Compliant</div>
+            <button id="pay-btn" class="btn-green" onclick="go('pay-success')">Pay ₱4,000.00 via GCash</button>
+            <div style="display:flex;align-items:center;justify-content:center;gap:6px;font-size:10px;color:var(--muted);">🔒 Secured by SSL · PCI-DSS Compliant</div>
           </div>
         </div>
       </div>
-    </div>
-    <div class="screen-label">04 · Online Payment</div>
-  </div>
 
-  <!-- SCREEN 5: TRACKER -->
-  <div class="screen-wrapper">
-    <div class="phone">
-      <div class="phone-screen">
-        <div class="status-bar">
-          <span class="time">9:41</span>
-          <div class="status-icons"><span>📶</span><span>🔋</span></div>
+      <!-- 8. PAY SUCCESS -->
+      <div class="screen" id="pay-success">
+        <div class="status-bar"><span class="time">9:41</span><span>📶 🔋</span></div>
+        <div class="success-body">
+          <div style="font-size:72px">💚</div>
+          <h2 style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--green);">Payment Successful!</h2>
+          <p style="font-size:13px;color:var(--muted);line-height:1.6;">Your RPT for 2026 has been paid. Official Receipt will be sent to your registered email.</p>
+          <div class="ref-box"><div class="ref-label">OR Number</div><div class="ref-num">OR-2026-01-9924</div></div>
+          <div class="ref-box" style="background:#e8f8ee;"><div class="ref-label">Amount Paid</div><div class="ref-num" style="color:var(--green);">₱4,000.00</div></div>
+          <button class="btn-submit" onclick="go('tracker')">View My Transactions</button>
+          <button class="btn-outline" onclick="go('home')">Back to Home</button>
         </div>
-        <div class="screen-content">
-          <div class="tracker-header">
-            <div class="back-btn" style="background:rgba(255,255,255,0.15);border-radius:8px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;">←</div>
-            <h3>My Requests</h3>
+      </div>
+
+      <!-- 9. TRACKER -->
+      <div class="screen" id="tracker">
+        <div class="status-bar"><span class="time">9:41</span><span>📶 🔋</span></div>
+        <div style="background:var(--primary);padding:14px 18px 16px;color:white;flex-shrink:0;">
+          <div style="font-family:'Syne',sans-serif;font-size:19px;font-weight:700;">My Requests</div>
+          <div style="font-size:11px;opacity:0.6;margin-top:2px;">3 active · 2 resolved</div>
+        </div>
+        <div class="scroll">
+          <div class="req-card" onclick="go('tracker-detail')">
+            <div class="req-top"><div><div class="req-title">🌊 Flood Report – Sitio 3</div><div class="req-date">Feb 22, 2026</div></div><span class="pill processing">Processing</span></div>
+            <div class="steps">
+              <div class="step"><div class="sdot done">✓</div><div class="sname">Submitted</div></div>
+              <div class="step"><div class="sdot done">✓</div><div class="sname">Received</div></div>
+              <div class="step"><div class="sdot active">→</div><div class="sname">In Action</div></div>
+              <div class="step"><div class="sdot"></div><div class="sname">Resolved</div></div>
+            </div>
+            <div style="font-size:10px;color:var(--muted);margin-top:4px;">📍 Assigned: DRRMO · ETA: 2–4 hrs</div>
           </div>
-          <div class="tracker-body">
-
-            <div class="request-card">
-              <div class="request-top">
-                <div>
-                  <div class="request-title">🌊 Flood Report – Sitio 3</div>
-                  <div class="request-date">Submitted: Feb 22, 2026</div>
-                </div>
-                <span class="status-pill processing">Processing</span>
-              </div>
-              <div class="steps-row">
-                <div class="step">
-                  <div class="step-dot done">✓</div>
-                  <div class="step-name">Submitted</div>
-                </div>
-                <div class="step">
-                  <div class="step-dot done">✓</div>
-                  <div class="step-name">Received</div>
-                </div>
-                <div class="step">
-                  <div class="step-dot active">→</div>
-                  <div class="step-name">In Action</div>
-                </div>
-                <div class="step">
-                  <div class="step-dot"></div>
-                  <div class="step-name">Resolved</div>
-                </div>
-              </div>
-              <div class="request-dept">📍 Assigned: DRRMO · ETA: 2–4 hrs</div>
-            </div>
-
-            <div class="request-card">
-              <div class="request-top">
-                <div>
-                  <div class="request-title">📄 Business Permit Renewal</div>
-                  <div class="request-date">Submitted: Feb 18, 2026</div>
-                </div>
-                <span class="status-pill resolved">✓ Done</span>
-              </div>
-              <div class="progress-bar"><div class="progress-fill" style="width:100%; background: var(--green)"></div></div>
-              <div class="request-dept">📋 BPLO · OR No. 2026-01-8834</div>
-            </div>
-
-            <div class="request-card">
-              <div class="request-top">
-                <div>
-                  <div class="request-title">💡 Broken Streetlight</div>
-                  <div class="request-date">Submitted: Feb 15, 2026</div>
-                </div>
-                <span class="status-pill pending">Pending</span>
-              </div>
-              <div class="progress-bar"><div class="progress-fill" style="width:20%"></div></div>
-              <div class="request-dept">🔦 Waiting for Engineering Office</div>
-            </div>
-
+          <div class="req-card" onclick="toast('Permit ready for pickup at BPLO Window 3')">
+            <div class="req-top"><div><div class="req-title">📄 Business Permit Renewal</div><div class="req-date">Feb 18, 2026</div></div><span class="pill resolved">✓ Done</span></div>
+            <div class="pbar"><div class="pfill" style="width:100%;background:var(--green)"></div></div>
+            <div style="font-size:10px;color:var(--muted);">📋 BPLO · OR No. 2026-01-8834</div>
           </div>
-          <div class="bottom-nav">
-            <div class="nav-item"><span>🏠</span>Home</div>
-            <div class="nav-item"><span>🛠️</span>Services</div>
-            <div class="nav-item active"><span>📋</span>Tracker</div>
-            <div class="nav-item"><span>👤</span>Profile</div>
+          <div class="req-card" onclick="toast('Waiting for Engineering Office')">
+            <div class="req-top"><div><div class="req-title">💡 Broken Streetlight</div><div class="req-date">Feb 15, 2026</div></div><span class="pill pending">Pending</span></div>
+            <div class="pbar"><div class="pfill" style="width:20%;background:var(--primary)"></div></div>
+            <div style="font-size:10px;color:var(--muted);">🔦 Waiting for Engineering Office</div>
+          </div>
+          <div class="req-card" onclick="toast('RPT paid · OR: 2026-01-9924')">
+            <div class="req-top"><div><div class="req-title">🏠 RPT Payment 2026</div><div class="req-date">Feb 23, 2026</div></div><span class="pill resolved">✓ Paid</span></div>
+            <div class="pbar"><div class="pfill" style="width:100%;background:var(--green)"></div></div>
+            <div style="font-size:10px;color:var(--muted);">💳 GCash · OR: 2026-01-9924</div>
+          </div>
+        </div>
+        <div class="bottom-nav">
+          <div class="nav-item" onclick="go('home')"><span>🏠</span>Home</div>
+          <div class="nav-item" onclick="go('services')"><span>🛠️</span>Services</div>
+          <div class="nav-item active" onclick="go('tracker')"><span>📋</span>Tracker</div>
+          <div class="nav-item" onclick="go('profile')"><span>👤</span>Profile</div>
+        </div>
+      </div>
+
+      <!-- 10. TRACKER DETAIL -->
+      <div class="screen" id="tracker-detail">
+        <div class="status-bar"><span class="time">9:41</span><span>📶 🔋</span></div>
+        <div class="header"><div class="back-btn" onclick="back()">←</div><h3>Report Detail</h3></div>
+        <div class="scroll">
+          <div class="gap">
+            <div class="bill-card">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;">🌊 Flood Report</div><span class="pill processing">Processing</span></div>
+              <div class="bill-row"><span class="bill-label">Reference No.</span><span class="bill-val">RPT-2026-00847</span></div>
+              <div class="bill-row"><span class="bill-label">Location</span><span class="bill-val">Sitio 3, Brgy. Pooc</span></div>
+              <div class="bill-row"><span class="bill-label">Category</span><span class="bill-val">💧 Flooding</span></div>
+              <div class="bill-row"><span class="bill-label">Priority</span><span class="bill-val" style="color:#e67e22;font-weight:700;">🟡 Medium</span></div>
+              <div class="bill-row"><span class="bill-label">Assigned To</span><span class="bill-val">DRRMO</span></div>
+              <div class="bill-row"><span class="bill-label">Submitted</span><span class="bill-val">Feb 22 · 8:32 AM</span></div>
+            </div>
+            <div>
+              <div class="sec-title">Progress Timeline</div>
+              <div style="display:flex;flex-direction:column;gap:0;">
+                <div style="display:flex;gap:12px;padding-bottom:14px;">
+                  <div style="display:flex;flex-direction:column;align-items:center;"><div style="width:28px;height:28px;border-radius:50%;background:var(--green);color:white;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;font-weight:700;">✓</div><div style="width:2px;flex:1;background:var(--border);margin-top:4px;min-height:20px;"></div></div>
+                  <div style="padding-top:4px;"><div style="font-size:12px;font-weight:700;">Report Submitted</div><div style="font-size:11px;color:var(--muted);">Feb 22 · 8:32 AM</div></div>
+                </div>
+                <div style="display:flex;gap:12px;padding-bottom:14px;">
+                  <div style="display:flex;flex-direction:column;align-items:center;"><div style="width:28px;height:28px;border-radius:50%;background:var(--green);color:white;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;font-weight:700;">✓</div><div style="width:2px;flex:1;background:var(--border);margin-top:4px;min-height:20px;"></div></div>
+                  <div style="padding-top:4px;"><div style="font-size:12px;font-weight:700;">Received by DRRMO</div><div style="font-size:11px;color:var(--muted);">Feb 22 · 9:01 AM</div></div>
+                </div>
+                <div style="display:flex;gap:12px;padding-bottom:14px;">
+                  <div style="display:flex;flex-direction:column;align-items:center;"><div style="width:28px;height:28px;border-radius:50%;background:var(--accent);color:white;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;">→</div><div style="width:2px;flex:1;background:var(--border);margin-top:4px;min-height:20px;"></div></div>
+                  <div style="padding-top:4px;"><div style="font-size:12px;font-weight:700;color:#e67e22;">Team Dispatched</div><div style="font-size:11px;color:var(--muted);">Feb 22 · 10:15 AM · In progress</div></div>
+                </div>
+                <div style="display:flex;gap:12px;">
+                  <div style="width:28px;height:28px;border-radius:50%;border:2px solid var(--border);background:white;color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;font-weight:700;">4</div>
+                  <div style="padding-top:4px;"><div style="font-size:12px;font-weight:700;color:var(--muted);">Issue Resolved</div><div style="font-size:11px;color:var(--muted);">Pending</div></div>
+                </div>
+              </div>
+            </div>
+            <button class="btn-outline" onclick="toast('Report cancellation requested')">Cancel Report</button>
           </div>
         </div>
       </div>
-    </div>
-    <div class="screen-label">05 · Request Tracker</div>
-  </div>
 
-  <!-- SCREEN 6: PROFILE -->
-  <div class="screen-wrapper">
-    <div class="phone">
-      <div class="phone-screen">
-        <div class="status-bar">
-          <span class="time">9:41</span>
-          <div class="status-icons"><span>📶</span><span>🔋</span></div>
+      <!-- 11. PROFILE -->
+      <div class="screen" id="profile">
+        <div class="status-bar"><span class="time">9:41</span><span>📶 🔋</span></div>
+        <div class="prof-head">
+          <div class="avatar">👤</div>
+          <div class="pname">Juan C. dela Cruz</div>
+          <div class="pid">Citizen ID: TC-2024-005481 · Verified ✅</div>
+          <div class="pstats">
+            <div class="pstat"><div class="pstat-num">8</div><div class="pstat-lbl">Reports</div></div>
+            <div class="pstat"><div class="pstat-num">3</div><div class="pstat-lbl">Payments</div></div>
+            <div class="pstat"><div class="pstat-num">2</div><div class="pstat-lbl">Permits</div></div>
+          </div>
         </div>
-        <div class="screen-content">
-          <div class="profile-header">
-            <div class="avatar">👤</div>
-            <div class="profile-name">Juan C. dela Cruz</div>
-            <div class="profile-id">Citizen ID: TC-2024-005481 · Verified ✅</div>
-            <div class="profile-stats">
-              <div class="stat-item">
-                <div class="stat-num">8</div>
-                <div class="stat-lbl">Reports</div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-num">3</div>
-                <div class="stat-lbl">Payments</div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-num">2</div>
-                <div class="stat-lbl">Permits</div>
-              </div>
-            </div>
+        <div class="scroll">
+          <div class="menu-sec">
+            <div class="menu-item" onclick="go('tracker')"><div class="micon" style="background:#e8f0fe">📋</div>My Transactions<span class="marr">›</span></div>
+            <div class="menu-item" onclick="toast('Documents coming soon')"><div class="micon" style="background:#e8f8ee">📄</div>My Documents<span class="marr">›</span></div>
+            <div class="menu-item" onclick="go('notifications')"><div class="micon" style="background:#fff4e0">🔔</div>Notifications <span style="background:var(--accent);color:#1a2332;font-size:9px;font-weight:800;padding:1px 7px;border-radius:10px;margin-left:4px;">3</span><span class="marr">›</span></div>
           </div>
-          <div class="profile-body">
-            <div class="menu-section">
-              <div class="menu-item">
-                <div class="menu-icon" style="background:#e8f0fe">📋</div>
-                My Transactions
-                <span class="menu-arrow">›</span>
-              </div>
-              <div class="menu-item">
-                <div class="menu-icon" style="background:#e8f8ee">📄</div>
-                My Documents
-                <span class="menu-arrow">›</span>
-              </div>
-              <div class="menu-item">
-                <div class="menu-icon" style="background:#fff4e0">🔔</div>
-                Notifications
-                <span class="menu-arrow">›</span>
-              </div>
-            </div>
-            <div class="menu-section">
-              <div class="menu-item">
-                <div class="menu-icon" style="background:#f0ebff">🔒</div>
-                Security & Privacy
-                <span class="menu-arrow">›</span>
-              </div>
-              <div class="menu-item">
-                <div class="menu-icon" style="background:#e0f5f5">🌐</div>
-                Language / Wika
-                <span class="menu-arrow">›</span>
-              </div>
-              <div class="menu-item">
-                <div class="menu-icon" style="background:#fee8e8">❓</div>
-                Help & Support
-                <span class="menu-arrow">›</span>
-              </div>
-              <div class="menu-item" style="color:#e74c3c;">
-                <div class="menu-icon" style="background:#fee8e8">🚪</div>
-                Log Out
-                <span class="menu-arrow">›</span>
-              </div>
-            </div>
+          <div class="menu-sec">
+            <div class="menu-item" onclick="toast('Security settings coming soon')"><div class="micon" style="background:#f0ebff">🔒</div>Security & Privacy<span class="marr">›</span></div>
+            <div class="menu-item" onclick="toast('Language: Filipino / English')"><div class="micon" style="background:#e0f5f5">🌐</div>Language / Wika<span class="marr">›</span></div>
+            <div class="menu-item" onclick="toast('Help center coming soon')"><div class="micon" style="background:#fefbe0">❓</div>Help & Support<span class="marr">›</span></div>
+            <div class="menu-item" style="color:var(--red);" onclick="go('splash')"><div class="micon" style="background:#fee8e8">🚪</div>Log Out<span class="marr">›</span></div>
           </div>
-          <div class="bottom-nav">
-            <div class="nav-item"><span>🏠</span>Home</div>
-            <div class="nav-item"><span>🛠️</span>Services</div>
-            <div class="nav-item"><span>📋</span>Tracker</div>
-            <div class="nav-item active"><span>👤</span>Profile</div>
+          <p style="text-align:center;font-size:10px;color:var(--muted);margin-top:4px;">Talisay G2C v1.0 · Xylvir Technologies Corp.</p>
+        </div>
+        <div class="bottom-nav">
+          <div class="nav-item" onclick="go('home')"><span>🏠</span>Home</div>
+          <div class="nav-item" onclick="go('services')"><span>🛠️</span>Services</div>
+          <div class="nav-item" onclick="go('tracker')"><span>📋</span>Tracker</div>
+          <div class="nav-item active" onclick="go('profile')"><span>👤</span>Profile</div>
+        </div>
+      </div>
+
+      <!-- 12. NOTIFICATIONS -->
+      <div class="screen" id="notifications">
+        <div class="status-bar"><span class="time">9:41</span><span>📶 🔋</span></div>
+        <div class="header"><div class="back-btn" onclick="back()">←</div><h3>Notifications</h3></div>
+        <div class="scroll">
+          <div class="notif-item unread" onclick="go('emergency')"><div class="ni-icon">⚠️</div><div><div class="ni-title">Typhoon Preparedness Alert</div><div class="ni-body">LPA signal #1 raised. All evacuation centers are now open.</div><div class="ni-time">Just now</div></div></div>
+          <div class="notif-item unread" onclick="go('tracker-detail')"><div class="ni-icon">🔄</div><div><div class="ni-title">Flood Report Update</div><div class="ni-body">DRRMO team dispatched to Sitio 3. ETA: 2–4 hours.</div><div class="ni-time">2 hours ago</div></div></div>
+          <div class="notif-item unread" onclick="go('pay-success')"><div class="ni-icon">✅</div><div><div class="ni-title">Payment Confirmed</div><div class="ni-body">RPT payment of ₱4,000 processed. OR No. 2026-01-9924.</div><div class="ni-time">Today, 8:15 AM</div></div></div>
+          <div class="notif-item" onclick="toast('Permit ready at BPLO Window 3')"><div class="ni-icon">📄</div><div><div class="ni-title">Permit Ready for Pickup</div><div class="ni-body">Your Business Permit renewal is ready at BPLO, Window 3.</div><div class="ni-time">Feb 20, 2026</div></div></div>
+          <div class="notif-item" onclick="toast('Medical Mission: Feb 25, Brgy. San Isidro')"><div class="ni-icon">💊</div><div><div class="ni-title">Free Medical Mission – Feb 25</div><div class="ni-body">Free check-up at Brgy. San Isidro covered court, 8am–5pm.</div><div class="ni-time">Feb 19, 2026</div></div></div>
+        </div>
+      </div>
+
+      <!-- 13. EMERGENCY -->
+      <div class="screen" id="emergency">
+        <div class="status-bar" style="background:#8b0000;"><span class="time">9:41</span><span>📶 🔋</span></div>
+        <div class="emg-hdr"><div class="back-btn" onclick="back()">←</div><h3 style="font-family:'Syne',sans-serif;font-size:17px;font-weight:700;">Emergency Info</h3></div>
+        <div class="scroll">
+          <div class="emg-banner">
+            <div class="emg-title">⚠️ Typhoon LPA Signal #1</div>
+            <span class="emg-lvl">Active Alert</span>
+            <div style="font-size:12px;opacity:0.9;line-height:1.5;">LPA raised over Talisay City. Residents in low-lying areas and near waterways are advised to prepare for possible evacuation.</div>
+          </div>
+          <div class="sec-title">Evacuation Centers</div>
+          <div class="evac-card"><div class="evac-name">🏫 Talisay City Science High School</div><div class="evac-info">📍 Brgy. Pooc · Capacity: 200 families</div><div class="evac-badges"><span class="ebadge open">🟢 Open</span><span class="ebadge open">45 / 200 families</span></div></div>
+          <div class="evac-card"><div class="evac-name">🏛️ City Hall Covered Court</div><div class="evac-info">📍 Brgy. San Isidro · Capacity: 150 families</div><div class="evac-badges"><span class="ebadge open">🟢 Open</span><span class="ebadge open">120 / 150 families</span></div></div>
+          <div class="evac-card"><div class="evac-name">⛪ San Nicolas Parish Hall</div><div class="evac-info">📍 Brgy. San Nicolas · Capacity: 100 families</div><div class="evac-badges"><span class="ebadge full">🔴 Full</span></div></div>
+          <div class="sec-title" style="margin-top:4px;">Emergency Hotlines</div>
+          <div class="hotline" onclick="toast('Calling DRRMO: 032-272-8888')"><div style="font-size:28px;flex-shrink:0;">🚨</div><div><div class="hotline-name">DRRMO Talisay</div><div class="hotline-num">032-272-8888</div></div></div>
+          <div class="hotline" style="background:#e74c3c;" onclick="toast('Calling PNP: 117')"><div style="font-size:28px;flex-shrink:0;">👮</div><div><div class="hotline-name">PNP Emergency</div><div class="hotline-num">117</div></div></div>
+          <div class="hotline" style="background:#c0392b;" onclick="toast('Calling BFP: 911')"><div style="font-size:28px;flex-shrink:0;">🚒</div><div><div class="hotline-name">Bureau of Fire Protection</div><div class="hotline-num">911</div></div></div>
+        </div>
+      </div>
+
+      <!-- 14. PERMIT -->
+      <div class="screen" id="permit">
+        <div class="status-bar"><span class="time">9:41</span><span>📶 🔋</span></div>
+        <div class="header"><div class="back-btn" onclick="back()">←</div><h3>Business Permit</h3></div>
+        <div class="scroll">
+          <div class="permit-steps">
+            <div class="pstep"><div class="pstep-dot active">1</div><div class="pstep-lbl">Business</div></div>
+            <div class="pstep"><div class="pstep-dot">2</div><div class="pstep-lbl">Owner</div></div>
+            <div class="pstep"><div class="pstep-dot">3</div><div class="pstep-lbl">Docs</div></div>
+            <div class="pstep"><div class="pstep-dot">4</div><div class="pstep-lbl">Review</div></div>
+          </div>
+          <div class="gap">
+            <div class="form-group"><div class="form-label">Business Name</div><input class="form-input" type="text" value="Juan's Sari-Sari Store"></div>
+            <div><div class="form-label">Business Type</div><div class="chip-group"><div class="chip active" onclick="chip(this)">🛒 Retail</div><div class="chip" onclick="chip(this)">🍽️ Food</div><div class="chip" onclick="chip(this)">🏗️ Services</div><div class="chip" onclick="chip(this)">🏭 Manufacturing</div></div></div>
+            <div class="form-group"><div class="form-label">Business Address</div><input class="form-input" value="123 Rizal St, Brgy. Pooc"></div>
+            <div><div class="form-label">Application Type</div><div class="chip-group"><div class="chip" onclick="chip(this)">🆕 New</div><div class="chip active" onclick="chip(this)">🔄 Renewal</div></div></div>
+            <div class="form-group"><div class="form-label">Capital Investment</div><input class="form-input" value="₱50,000.00"></div>
+            <button class="btn-submit" onclick="toast('Proceeding to Owner Information...')">Next: Owner Information →</button>
           </div>
         </div>
       </div>
-    </div>
-    <div class="screen-label">06 · Profile</div>
-  </div>
 
+    </div>
+  </div>
 </div>
 
-<p style="text-align:center; margin-top:48px; font-size:12px; color:#94a3b8;">Talisay City G2C · Xylvir Technologies Corp. · Mockup v1.0 · 2026 — Not a functional app</p>
+<div class="toast" id="toast-el"></div>
 
+<script>
+  let hist = ['splash'];
+  let cur = 'splash';
+
+  function go(id) {
+    if (id === cur) return;
+    const c = document.getElementById(cur);
+    const n = document.getElementById(id);
+    if (!n) return;
+    c.classList.remove('active');
+    c.classList.add('exit');
+    setTimeout(() => c.classList.remove('exit'), 280);
+    n.classList.add('active');
+    hist.push(id);
+    cur = id;
+  }
+
+  function back() {
+    if (hist.length <= 1) return;
+    hist.pop();
+    const prev = hist[hist.length - 1];
+    const c = document.getElementById(cur);
+    const p = document.getElementById(prev);
+    c.classList.remove('active');
+    p.classList.add('active');
+    cur = prev;
+  }
+
+  function chip(el) {
+    el.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function payOpt(el, name) {
+    document.querySelectorAll('.pay-opt').forEach(p => p.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('pay-btn').textContent = `Pay ₱4,000.00 via ${name}`;
+  }
+
+  let toastT;
+  function toast(msg) {
+    const el = document.getElementById('toast-el');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastT);
+    toastT = setTimeout(() => el.classList.remove('show'), 2200);
+  }
+</script>
 </body>
 </html>
